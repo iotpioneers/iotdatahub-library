@@ -1,9 +1,9 @@
 /**
- * @file    IoTDataHubMQTT.cpp
- * @brief   IoTDataHub MQTT client — board-agnostic implementation.
+ * @file    IoTDataHub.cpp
+ * @brief   IoTDataHub client — board-agnostic implementation.
  */
 
-#include "IoTDataHubMQTT.h"
+#include "IoTDataHub.h"
 
 #if defined(ESP32)
   #include <WiFi.h>
@@ -14,28 +14,28 @@
 #endif
 
 // ── Static members ───────────────────────────────────────────────
-IoTDataHubMQTTClass* IoTDataHubMQTTClass::_instance = nullptr;
+IoTDataHubClass* IoTDataHubClass::_instance = nullptr;
 
 // Use a function-local static array to guarantee it is initialized
 // before any global constructor (registrar objects) tries to write into it.
-_IotdhWriteFn* IoTDataHubMQTTClass::_writeHandlers = nullptr;
-_IotdhReadFn*  IoTDataHubMQTTClass::_readHandlers  = nullptr;
+_IotdhWriteFn* IoTDataHubClass::_writeHandlers = nullptr;
+_IotdhReadFn*  IoTDataHubClass::_readHandlers  = nullptr;
 
 static _IotdhWriteFn _writeHandlerStorage[IOTDH_MAX_VPINS];
 static _IotdhReadFn  _readHandlerStorage[IOTDH_MAX_VPINS];
 
 // ── Runtime handler registration ─────────────────────────────────
 void _iotdh_register_write(int pin, _IotdhWriteFn fn) {
-    if (!IoTDataHubMQTTClass::_writeHandlers)
-        IoTDataHubMQTTClass::_writeHandlers = _writeHandlerStorage;
+    if (!IoTDataHubClass::_writeHandlers)
+        IoTDataHubClass::_writeHandlers = _writeHandlerStorage;
     if (pin >= 0 && pin < IOTDH_MAX_VPINS)
-        IoTDataHubMQTTClass::_writeHandlers[pin] = fn;
+        IoTDataHubClass::_writeHandlers[pin] = fn;
 }
 void _iotdh_register_read(int pin, _IotdhReadFn fn) {
-    if (!IoTDataHubMQTTClass::_readHandlers)
-        IoTDataHubMQTTClass::_readHandlers = _readHandlerStorage;
+    if (!IoTDataHubClass::_readHandlers)
+        IoTDataHubClass::_readHandlers = _readHandlerStorage;
     if (pin >= 0 && pin < IOTDH_MAX_VPINS)
-        IoTDataHubMQTTClass::_readHandlers[pin] = fn;
+        IoTDataHubClass::_readHandlers[pin] = fn;
 }
 
 // ── Weak connection event stubs ───────────────────────────────────
@@ -43,14 +43,14 @@ __attribute__((weak)) void _iotdh_on_connected()    {}
 __attribute__((weak)) void _iotdh_on_disconnected() {}
 
 // ── Constructor ──────────────────────────────────────────────────
-IoTDataHubMQTTClass::IoTDataHubMQTTClass(Client& netClient)
+IoTDataHubClass::IoTDataHubClass(Client& netClient)
     : _mqtt(netClient)
 {
     _instance = this;
 }
 
 // ── begin() — WiFi boards ─────────────────────────────────────────
-void IoTDataHubMQTTClass::begin(const char* deviceId, const char* token,
+void IoTDataHubClass::begin(const char* deviceId, const char* token,
                                  const char* ssid,     const char* pass,
                                  const char* server,   uint16_t    port)
 {
@@ -80,7 +80,7 @@ void IoTDataHubMQTTClass::begin(const char* deviceId, const char* token,
 }
 
 // ── beginNetwork() — Ethernet / GSM (network already up) ───────────
-void IoTDataHubMQTTClass::beginNetwork(const char* deviceId, const char* token,
+void IoTDataHubClass::beginNetwork(const char* deviceId, const char* token,
                                         const char* server,   uint16_t    port)
 {
     _deviceId = deviceId;
@@ -96,7 +96,7 @@ void IoTDataHubMQTTClass::beginNetwork(const char* deviceId, const char* token,
 }
 
 // ── run() ────────────────────────────────────────────────────────
-void IoTDataHubMQTTClass::run() {
+void IoTDataHubClass::run() {
     if (!_mqtt.connected()) {
         _iotdh_on_disconnected();
         _connectMQTT();
@@ -105,13 +105,13 @@ void IoTDataHubMQTTClass::run() {
 }
 
 // ── _buildTopics() ───────────────────────────────────────────────
-void IoTDataHubMQTTClass::_buildTopics() {
+void IoTDataHubClass::_buildTopics() {
     snprintf(_topicStatus, sizeof(_topicStatus), "devices/%s/status", _deviceId);
     snprintf(_topicCmdAll, sizeof(_topicCmdAll), "devices/%s/cmd/#",  _deviceId);
 }
 
 // ── _connectMQTT() ───────────────────────────────────────────────
-void IoTDataHubMQTTClass::_connectMQTT() {
+void IoTDataHubClass::_connectMQTT() {
     while (!_mqtt.connected()) {
         Serial.printf("[IoTDataHub] MQTT connecting to %s:%d...\n", _server, _port);
         bool ok = _mqtt.connect(
@@ -132,7 +132,7 @@ void IoTDataHubMQTTClass::_connectMQTT() {
 }
 
 // ── _mqttCallback() ──────────────────────────────────────────────
-void IoTDataHubMQTTClass::_mqttCallback(char* topic, byte* payload,
+void IoTDataHubClass::_mqttCallback(char* topic, byte* payload,
                                           unsigned int length)
 {
     if (!_instance) return;
@@ -160,7 +160,7 @@ void IoTDataHubMQTTClass::_mqttCallback(char* topic, byte* payload,
 }
 
 // ── _dispatchWrite() / _dispatchRead() ───────────────────────────
-void IoTDataHubMQTTClass::_dispatchWrite(int pin, const char* value) {
+void IoTDataHubClass::_dispatchWrite(int pin, const char* value) {
     if (pin < 0 || pin >= IOTDH_MAX_VPINS) return;
     if (_instance && _instance->_writeHandlers && _instance->_writeHandlers[pin]) {
         IoTDataHubParam param(value);
@@ -168,14 +168,14 @@ void IoTDataHubMQTTClass::_dispatchWrite(int pin, const char* value) {
     }
 }
 
-void IoTDataHubMQTTClass::_dispatchRead(int pin) {
+void IoTDataHubClass::_dispatchRead(int pin) {
     if (pin < 0 || pin >= IOTDH_MAX_VPINS) return;
     if (_instance && _instance->_readHandlers && _instance->_readHandlers[pin])
         _instance->_readHandlers[pin]();
 }
 
 // ── _extractJsonValue() ──────────────────────────────────────────
-String IoTDataHubMQTTClass::_extractJsonValue(const String& raw) {
+String IoTDataHubClass::_extractJsonValue(const String& raw) {
     int valIdx = raw.indexOf("\"value\"");
     if (valIdx < 0) return raw;  // plain value, return as-is
 

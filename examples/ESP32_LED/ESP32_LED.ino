@@ -2,13 +2,13 @@
   IoTDataHub — ESP32 LED Control Example
 
   Device logic only. All WiFi + MQTT connection is handled
-  by the IoTDataHubMQTT library.
+  by the IoTDataHub library.
 
   Dashboard → V3 button  → controls LED on LED_PIN
   LED state              → echoed back on V4 (dashboard reads it)
 
   Requirements:
-    - IoTDataHubMQTT library (this library)
+    - IoTDataHub library (this library)
     - PubSubClient library
  *************************************************************/
 
@@ -16,7 +16,7 @@
 #define IoTDATAHUB_ORGANIZATION_NAME  "IoT Data Hub"
 #define IoTDATAHUB_DEVICE_TOKEN       "01ac9daf118e6a9ca20cef6e55f0ddb5"
 
-#include <IoTDataHubSimpleEsp32MQTT.h>
+#include <IoTDataHubSimpleEsp32.h>
 
 // ── WiFi credentials ─────────────────────────────────────────
 const char* WIFI_SSID = "CANALBOX-6A13-2G";

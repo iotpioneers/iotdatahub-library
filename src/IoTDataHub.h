@@ -1,19 +1,19 @@
 /**
- * @file    IoTDataHubMQTT.h
- * @brief   IoTDataHub MQTT client — board-agnostic core.
+ * @file    IoTDataHub.h
+ * @brief   IoTDataHub client — board-agnostic core.
  *
  * Use a board-specific header in your sketch:
- *   #include <IoTDataHubSimpleEsp32MQTT.h>
- *   #include <IoTDataHubSimpleEsp8266MQTT.h>
- *   #include <IoTDataHubSimpleEthernetMQTT.h>
- *   #include <IoTDataHubSimpleWiFiNINAMQTT.h>
- *   #include <IoTDataHubSimpleTinyGSMMQTT.h>
- *   #include <IoTDataHubSimpleMKRGSMMQTT.h>
- *   #include <IoTDataHubSimpleMKRNBMQTT.h>
+ *   #include <IoTDataHubSimpleEsp32.h>
+ *   #include <IoTDataHubSimpleEsp8266.h>
+ *   #include <IoTDataHubSimpleEthernet.h>
+ *   #include <IoTDataHubSimpleWiFiNINA.h>
+ *   #include <IoTDataHubSimpleTinyGSM.h>
+ *   #include <IoTDataHubSimpleMKRGSM.h>
+ *   #include <IoTDataHubSimpleMKRNB.h>
  */
 
-#ifndef IoTDataHubMQTT_h
-#define IoTDataHubMQTT_h
+#ifndef IoTDataHub_h
+#define IoTDataHub_h
 
 #include <Arduino.h>
 #include <PubSubClient.h>
@@ -38,10 +38,10 @@ void _iotdh_register_write(int pin, _IotdhWriteFn fn);
 void _iotdh_register_read (int pin, _IotdhReadFn  fn);
 
 // ── Core class ───────────────────────────────────────────────────
-class IoTDataHubMQTTClass {
+class IoTDataHubClass {
 public:
     // Constructed with the network client injected by the board header
-    explicit IoTDataHubMQTTClass(Client& netClient);
+    explicit IoTDataHubClass(Client& netClient);
 
     // ── begin() for WiFi boards ────────────────────────────────────
     // Pass deviceId + token explicitly, OR define the macros above the
@@ -116,7 +116,7 @@ private:
 
     PubSubClient _mqtt;  // constructed with real Client& in initialiser list
 
-    static IoTDataHubMQTTClass* _instance;
+    static IoTDataHubClass* _instance;
     static _IotdhWriteFn* _writeHandlers;
     static _IotdhReadFn*  _readHandlers;
 
