@@ -5,15 +5,15 @@ Handles all WiFi/Ethernet/GSM connection logic so your sketch contains only devi
 
 ## Supported Boards
 
-| Header                           | Transport                             |
-| -------------------------------- | ------------------------------------- |
-| `IoTDataHubSimpleEsp32MQTT.h`    | ESP32 WiFi                            |
-| `IoTDataHubSimpleEsp8266MQTT.h`  | ESP8266 WiFi                          |
-| `IoTDataHubSimpleWiFiNINAMQTT.h` | MKR WiFi 1010 / Nano 33 IoT           |
-| `IoTDataHubSimpleEthernetMQTT.h` | Arduino Ethernet shield (W5100/W5500) |
-| `IoTDataHubSimpleTinyGSMMQTT.h`  | SIM800 / SIM900 / SIM7600 via TinyGSM |
-| `IoTDataHubSimpleMKRGSMMQTT.h`   | Arduino MKR GSM 1400                  |
-| `IoTDataHubSimpleMKRNBMQTT.h`    | Arduino MKR NB 1500                   |
+| Header                       | Transport                             |
+| ---------------------------- | ------------------------------------- |
+| `IoTDataHubSimpleEsp32.h`    | ESP32 WiFi                            |
+| `IoTDataHubSimpleEsp8266.h`  | ESP8266 WiFi                          |
+| `IoTDataHubSimpleWiFiNINA.h` | MKR WiFi 1010 / Nano 33 IoT           |
+| `IoTDataHubSimpleEthernet.h` | Arduino Ethernet shield (W5100/W5500) |
+| `IoTDataHubSimpleTinyGSM.h`  | SIM800 / SIM900 / SIM7600 via TinyGSM |
+| `IoTDataHubSimpleMKRGSM.h`   | Arduino MKR GSM 1400                  |
+| `IoTDataHubSimpleMKRNB.h`    | Arduino MKR NB 1500                   |
 
 ## Dependencies
 
@@ -25,7 +25,7 @@ Handles all WiFi/Ethernet/GSM connection logic so your sketch contains only devi
 #define IoTDATAHUB_DEVICE_ID    "your_device_id"    // from dashboard URL
 #define IoTDATAHUB_DEVICE_TOKEN "your_token"         // from dashboard
 
-#include <IoTDataHubSimpleEsp32MQTT.h>
+#include <IoTDataHubSimpleEsp32.h>
 
 const char* WIFI_SSID = "your_ssid";
 const char* WIFI_PASS = "your_password";

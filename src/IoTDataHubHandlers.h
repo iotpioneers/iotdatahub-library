@@ -2,7 +2,7 @@
  * @file    IoTDataHubHandlers.h
  * @brief   Virtual pin number constants V0–V31.
  *          Handler macros (IoTDATAHUB_WRITE / IoTDATAHUB_READ) are defined
- *          in IoTDataHubMQTT.h after the registration infrastructure is set up.
+ *          in IoTDataHub.h after the registration infrastructure is set up.
  */
 
 #ifndef IoTDataHubHandlers_h
