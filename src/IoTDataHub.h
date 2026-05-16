@@ -3,13 +3,33 @@
  * @brief   IoTDataHub client — board-agnostic core.
  *
  * Use a board-specific header in your sketch:
- *   #include <IoTDataHubSimpleEsp32.h>
- *   #include <IoTDataHubSimpleEsp8266.h>
- *   #include <IoTDataHubSimpleEthernet.h>
- *   #include <IoTDataHubSimpleWiFiNINA.h>
- *   #include <IoTDataHubSimpleTinyGSM.h>
- *   #include <IoTDataHubSimpleMKRGSM.h>
- *   #include <IoTDataHubSimpleMKRNB.h>
+ *
+ *  WiFi boards:
+ *   #include <IoTDataHubSimpleEsp32.h>          — ESP32
+ *   #include <IoTDataHubSimpleEsp8266.h>         — ESP8266 (NodeMCU / Wemos D1)
+ *   #include <IoTDataHubSimpleRP2040WiFi.h>      — Raspberry Pi Pico W (RP2040)
+ *   #include <IoTDataHubSimpleWiFiNINA.h>        — MKR WiFi 1010 / Nano 33 IoT / UNO WiFi Rev2
+ *   #include <IoTDataHubSimpleSTM32.h>           — STM32 + ESP8266 AT-command WiFi shield
+ *
+ *  Ethernet boards:
+ *   #include <IoTDataHubSimpleEthernet.h>        — Arduino Ethernet Shield (W5100/W5500)
+ *   #include <IoTDataHubSimpleENC28J60.h>        — ENC28J60 Ethernet (via UIPEthernet)
+ *
+ *  Cellular (GSM / NB-IoT) boards:
+ *   #include <IoTDataHubSimpleTinyGSM.h>         — TinyGSM (SIM800 / SIM900 / SIM7600 / A6/A7)
+ *   #include <IoTDataHubSimpleMKRGSM.h>          — Arduino MKR GSM 1400
+ *   #include <IoTDataHubSimpleMKRNB.h>           — Arduino MKR NB 1500 (NB-IoT / LTE-M)
+ *
+ * Widget helpers (optional — include after the board header):
+ *   #include <IoTDataHubWidgets.h>               — all widgets + VPinWriteOnChange (aggregator)
+ *   #include <IoTDataHubWidgetLED.h>             — IoTDataHubWidgetLED   on/off/setValue
+ *   #include <IoTDataHubWidgetLCD.h>             — IoTDataHubWidgetLCD   x/y text on LCD widget
+ *   #include <IoTDataHubWidgetTerminal.h>        — IoTDataHubWidgetTerminal (Print-compatible)
+ *   #include <IoTDataHubWidgetMap.h>             — IoTDataHubWidgetMap   GPS marker placement
+ *   #include <IoTDataHubWidgetTimeInput.h>       — IoTDataHubTimeInputParam  time-range parser
+ *
+ * Timer utility:
+ *   #include <IoTDataHubTimer.h>                 — IoTDataHubTimer  non-blocking interval timer
  */
 
 #ifndef IoTDataHub_h
