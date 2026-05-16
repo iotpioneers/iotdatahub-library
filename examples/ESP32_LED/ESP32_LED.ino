@@ -19,8 +19,8 @@
 #include <IoTDataHubSimpleEsp32.h>
 
 // ── WiFi credentials ─────────────────────────────────────────
-const char* WIFI_SSID = "CANALBOX-6A13-2G";
-const char* WIFI_PASS = "9XEen9xpUu";
+const char* WIFI_SSID = "YourWiFiSSID";
+const char* WIFI_PASS = "YourWiFiPassword";
 
 // ── Hardware ─────────────────────────────────────────────────
 #define LED_PIN 4
