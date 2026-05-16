@@ -65,10 +65,9 @@ void IoTDataHubClass::begin(const char* deviceId, const char* token,
 #if defined(ESP32) || defined(ESP8266) || defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_NRF52)
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, pass);
-    Serial.print("[IoTDataHub] WiFi connecting");
+    Serial.print("[IoTDataHub] WiFi connecting ...");
     while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
-    Serial.printf("\n[IoTDataHub] WiFi connected — IP: %s\n",
-                  WiFi.localIP().toString().c_str());
+    Serial.printf("\n[IoTDataHub] WiFi connected!");
 #else
     (void)ssid; (void)pass;
 #endif
@@ -113,18 +112,18 @@ void IoTDataHubClass::_buildTopics() {
 // ── _connectMQTT() ───────────────────────────────────────────────
 void IoTDataHubClass::_connectMQTT() {
     while (!_mqtt.connected()) {
-        Serial.printf("[IoTDataHub] MQTT connecting to %s:%d...\n", _server, _port);
+        Serial.printf("[IoTDataHub] connecting ...\n");
         bool ok = _mqtt.connect(
             _deviceId, _token, "",
             _topicStatus, 1, true, "OFFLINE"
         );
         if (ok) {
-            Serial.println("[IoTDataHub] MQTT connected!");
+            Serial.println("[IoTDataHub] connected!");
             _mqtt.publish(_topicStatus, "ONLINE", true);
             _mqtt.subscribe(_topicCmdAll, 1);
             _iotdh_on_connected();
         } else {
-            Serial.printf("[IoTDataHub] MQTT failed (rc=%d) — retry in 3s\n",
+            Serial.printf("[IoTDataHub] failed (rc=%d) — retry in 3s\n",
                           _mqtt.state());
             delay(3000);
         }
@@ -148,8 +147,6 @@ void IoTDataHubClass::_mqttCallback(char* topic, byte* payload,
     unsigned int len = (length < sizeof(raw) - 1) ? length : sizeof(raw) - 1;
     memcpy(raw, payload, len);
     raw[len] = '\0';
-
-    Serial.printf("[IoTDataHub] cmd pin=%d raw=%s\n", pin, raw);
 
     if (topicStr.indexOf("/vr/") >= 0) {
         _dispatchRead(pin);
