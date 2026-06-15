@@ -1,83 +1,33 @@
-/*************************************************************
-  IoTDataHub — Widget: Terminal (Serial-over-MQTT)
-
-  Demonstrates a two-way text terminal over virtual pins.
-  The dashboard sends text commands to V10; the device echoes
-  them back and responds to special commands.
-
-  Dashboard setup:
-    Value Display or text input → V10  "Terminal In"
-    Value Display               → V11  "Terminal Out"
-
-  Usage (type into dashboard V10 input):
-    "hello"   → device replies "Hi from IoTDataHub!"
-    "uptime"  → device replies uptime in seconds
-    "status"  → device replies connection + heap info
-    anything else → echoed back prefixed with "Echo: "
-
-  Hardware:
-    ESP32 — no extra hardware needed
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// Send a line to the dashboard terminal output
-void termPrint(const char* msg) {
-    IoTDataHub.virtualWrite(V11, msg);
-    Serial.printf("[Term] %s\n", msg);
-}
-
-// Dashboard sends a command string to V10
+// Dashboard terminal sends text to V10, device replies on V11
 IoTDATAHUB_WRITE(V10) {
     String cmd = String(param.asStr());
     cmd.trim();
+    Serial.print("Command: ");
+    Serial.println(cmd);
 
-    if (cmd == "hello" || cmd == "Hello") {
-        termPrint("Hi from IoTDataHub!");
-
+    if (cmd == "hello") {
+        IoTDataHub.virtualWrite(V11, "Hi from IoTDataHub!");
     } else if (cmd == "uptime") {
-        char buf[40];
-        snprintf(buf, sizeof(buf), "Uptime: %lu s", millis() / 1000);
-        termPrint(buf);
-
-    } else if (cmd == "status") {
-        char buf[80];
-        snprintf(buf, sizeof(buf), "Connected: %s | Free heap: %lu B",
-                 IoTDataHub.connected() ? "YES" : "NO",
-                 (unsigned long)ESP.getFreeHeap());
-        termPrint(buf);
-
-    } else if (cmd.length() > 0) {
-        String echo = "Echo: " + cmd;
-        termPrint(echo.c_str());
+        IoTDataHub.virtualWrite(V11, millis() / 1000);
+    } else {
+        IoTDataHub.virtualWrite(V11, "Unknown command");
     }
 }
 
-IoTDATAHUB_READ(V11) {
-    IoTDataHub.virtualWrite(V11, "Ready");
-}
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    termPrint("Device connected. Type 'hello', 'uptime', or 'status'.");
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);

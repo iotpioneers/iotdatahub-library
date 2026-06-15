@@ -1,96 +1,46 @@
-/*
- * TimeInput.ino — IoTDataHubWidgetTimeInput demo
- *
- * Reads the payload from a dashboard Time Input widget and controls
- * a relay (pin 26) according to the scheduled ON/OFF window.
- * Weekday filtering is applied: the relay only fires on selected days.
- *
- * Dashboard setup:
- *   V9 — Time Input widget  (start time, stop time, weekdays)
- *
- * Board: ESP32
- */
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 #include <IoTDataHubWidgetTimeInput.h>
-#include <IoTDataHubTimer.h>
-#include <time.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
+// Relay on GPIO26
 #define RELAY_PIN 26
 
-IoTDataHubTimer timer;
-
-// Stored schedule
-int startH = -1, startM = 0;
-int stopH  = -1, stopM  = 0;
-uint8_t weekdayMask = 0x7F;   // all days
-
+// Dashboard Time Input widget sends schedule to V9
 IoTDATAHUB_WRITE(V9) {
     IoTDataHubTimeInputParam t(param);
 
     if (t.hasStartTime()) {
-        startH = t.getStartHour();
-        startM = t.getStartMinute();
-        Serial.printf("Start: %02d:%02d\n", startH, startM);
+        Serial.printf("Start: %02d:%02d\n", t.getStartHour(), t.getStartMinute());
     }
     if (t.hasStopTime()) {
-        stopH = t.getStopHour();
-        stopM = t.getStopMinute();
-        Serial.printf("Stop:  %02d:%02d\n", stopH, stopM);
+        Serial.printf("Stop:  %02d:%02d\n", t.getStopHour(), t.getStopMinute());
     }
-
-    weekdayMask = 0;
     for (int d = 1; d <= 7; d++) {
-        if (t.isWeekdaySelected(d)) weekdayMask |= (1 << (d - 1));
-    }
-
-    if (t.getTZ() && t.getTZ()[0]) {
-        setenv("TZ", t.getTZ(), 1);
-        tzset();
+        if (t.isWeekdaySelected(d)) {
+            Serial.printf("Day %d active\n", d);
+        }
     }
 }
 
-void checkSchedule() {
-    struct tm now;
-    if (!getLocalTime(&now)) return;
-
-    // tm_wday: 0=Sun … 6=Sat; widget uses 1=Mon … 7=Sun
-    int wday = (now.tm_wday == 0) ? 7 : now.tm_wday;
-    if (!((weekdayMask >> (wday - 1)) & 1)) {
-        digitalWrite(RELAY_PIN, LOW);
-        return;
-    }
-
-    int curMin = now.tm_hour * 60 + now.tm_min;
-    int startMin = startH * 60 + startM;
-    int stopMin  = stopH  * 60 + stopM;
-
-    bool on = (startH >= 0 && stopH >= 0)
-              && (curMin >= startMin && curMin < stopMin);
-    digitalWrite(RELAY_PIN, on ? HIGH : LOW);
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
     pinMode(RELAY_PIN, OUTPUT);
     digitalWrite(RELAY_PIN, LOW);
-
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
-    configTime(0, 0, "pool.ntp.org");
-
-    timer.setInterval(60000L, checkSchedule);
 }
 
 void loop() {
     IoTDataHub.run();
-    timer.run();
 }

@@ -1,99 +1,35 @@
-/*************************************************************
-  IoTDataHub — Widget: Joystick
-
-  Reads a 2-axis analog joystick and streams X/Y values to
-  the dashboard continuously. A button widget on V3 toggles
-  an "arm" mode — joystick commands only execute when armed.
-
-  Dashboard setup:
-    Value Display → V0   "Joystick X"
-    Value Display → V1   "Joystick Y"
-    Button widget → V3   "Arm" (Switch mode)
-
-  Hardware:
-    ESP32
-    Analog joystick:
-      VRX (X-axis) → GPIO34  (ADC1_CH6)
-      VRY (Y-axis) → GPIO35  (ADC1_CH7)
-      SW  (button) → GPIO32  (optional, INPUT_PULLUP)
-      VCC → 3.3V
-      GND → GND
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-#define JOY_X_PIN 34
-#define JOY_Y_PIN 35
-#define JOY_SW_PIN 32
+// Joystick X on GPIO34, Y on GPIO35
+#define JOY_X 34
+#define JOY_Y 35
 
-bool armed = false;
-
-unsigned long lastSendMs = 0;
-const unsigned long SEND_INTERVAL_MS = 100;  // 10 Hz
-
-int lastX = 0, lastY = 0;
-
-// Map raw ADC (0-4095) to -100…+100 with centre dead-zone
-int mapJoy(int raw) {
-    int val = map(raw, 0, 4095, -100, 100);
-    if (abs(val) < 5) val = 0;  // dead-zone
-    return val;
-}
-
-// Dashboard button: arm/disarm joystick
-IoTDATAHUB_WRITE(V3) {
-    armed = param.asInt();
-    Serial.printf("[App] Joystick %s\n", armed ? "ARMED" : "DISARMED");
-    if (!armed) {
-        IoTDataHub.virtualWrite(V0, 0);
-        IoTDataHub.virtualWrite(V1, 0);
-    }
-}
-
-IoTDATAHUB_READ(V0) { IoTDataHub.virtualWrite(V0, lastX);           }
-IoTDATAHUB_READ(V1) { IoTDataHub.virtualWrite(V1, lastY);           }
-IoTDATAHUB_READ(V3) { IoTDataHub.virtualWrite(V3, armed ? 1 : 0);  }
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    IoTDataHub.virtualWrite(V0, 0);
-    IoTDataHub.virtualWrite(V1, 0);
-    IoTDataHub.virtualWrite(V3, 0);
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected.");
-    armed = false;
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(JOY_SW_PIN, INPUT_PULLUP);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
 
-    if (armed && IoTDataHub.connected() &&
-        millis() - lastSendMs >= SEND_INTERVAL_MS) {
-        lastSendMs = millis();
-        lastX = mapJoy(analogRead(JOY_X_PIN));
-        lastY = mapJoy(analogRead(JOY_Y_PIN));
-        IoTDataHub.virtualWrite(V0, lastX);
-        IoTDataHub.virtualWrite(V1, lastY);
-    }
+    int x = analogRead(JOY_X);
+    int y = analogRead(JOY_Y);
+
+    IoTDataHub.virtualWrite(V0, x);
+    IoTDataHub.virtualWrite(V1, y);
+
+    delay(100);
 }
