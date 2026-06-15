@@ -28,8 +28,11 @@
 const char APN[]      = "internet";
 const char GUSER[]    = "";
 const char GPASS[]    = "";
-const char DEVICE_ID[]    = "your-device-id-here";
-const char DEVICE_TOKEN[] = "your-device-token-here";
+// Copy these from your device page at https://www.iotdatahub.rw
+// #define IoTDATAHUB_USER_NAME         "XXXXXX"
+// #define IoTDATAHUB_ORGANIZATION_NAME "XXXXXX"
+const char DEVICE_TOKEN[] = "XXXXXX";
+const char DEVICE_ID[]    = "XXXXXX";
 
 #define SerialAT  Serial1
 #define MODEM_BAUD 115200

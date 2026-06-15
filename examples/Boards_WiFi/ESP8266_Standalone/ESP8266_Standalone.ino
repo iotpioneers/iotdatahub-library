@@ -22,12 +22,16 @@
     - ESP8266 Arduino core
  *************************************************************/
 
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+
 #include <IoTDataHubSimpleEsp8266.h>
 
-const char* DEVICE_ID    = "your-device-id-here";
-const char* DEVICE_TOKEN = "your-device-token-here";
-const char* WIFI_SSID    = "YourWiFiSSID";
-const char* WIFI_PASS    = "YourWiFiPassword";
+const char* WIFI_SSID = "YourWiFiSSID";
+const char* WIFI_PASS = "YourWiFiPassword";
 
 #define LED_PIN 2   // Built-in LED, active-LOW on most ESP8266 boards
 
@@ -66,7 +70,7 @@ void setup() {
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, HIGH);  // OFF (active-LOW)
 
-    IoTDataHub.begin(DEVICE_ID, DEVICE_TOKEN, WIFI_SSID, WIFI_PASS);
+    IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {

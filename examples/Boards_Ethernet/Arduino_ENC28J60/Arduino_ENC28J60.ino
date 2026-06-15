@@ -23,12 +23,14 @@
     - UIPEthernet library: https://github.com/UIPEthernet/UIPEthernet
  *************************************************************/
 
-#define IoTDATAHUB_DEVICE_TOKEN  "your-device-token-here"
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
 
 #include <SPI.h>
 #include <IoTDataHubSimpleENC28J60.h>
-
-const char* DEVICE_ID = "your-device-id-here";
 
 // Unique MAC address — change last byte per device
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x01 };
@@ -66,7 +68,7 @@ void setup() {
     Ethernet.begin(mac);        // DHCP
     delay(1000);
 
-    IoTDataHub.beginNetwork(DEVICE_ID, IoTDATAHUB_DEVICE_TOKEN);
+    IoTDataHub.beginNetwork(IoTDATAHUB_DEVICE_ID, IoTDATAHUB_DEVICE_TOKEN);
 }
 
 void loop() {

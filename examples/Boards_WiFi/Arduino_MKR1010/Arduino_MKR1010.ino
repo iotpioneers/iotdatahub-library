@@ -18,12 +18,16 @@
     - WiFiNINA library (available in Arduino Library Manager)
  *************************************************************/
 
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+
 #include <IoTDataHubSimpleWiFiNINA.h>
 
-const char* DEVICE_ID    = "your-device-id-here";
-const char* DEVICE_TOKEN = "your-device-token-here";
-const char* WIFI_SSID    = "YourWiFiSSID";
-const char* WIFI_PASS    = "YourWiFiPassword";
+const char* WIFI_SSID = "YourWiFiSSID";
+const char* WIFI_PASS = "YourWiFiPassword";
 
 unsigned long lastSendMs = 0;
 const unsigned long SEND_INTERVAL_MS = 1000;
@@ -56,7 +60,7 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
 
-    IoTDataHub.begin(DEVICE_ID, DEVICE_TOKEN, WIFI_SSID, WIFI_PASS);
+    IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
