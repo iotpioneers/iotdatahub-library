@@ -1,53 +1,23 @@
-/*************************************************************
-  IoTDataHub — Getting Started: Get Data (ESP32)
-
-  Shows how to receive any value the dashboard writes to a
-  virtual pin and print all typed accessors to Serial.
-  Use this as a debug/learning sketch when connecting a new
-  widget.
-
-  Dashboard setup:
-    Slider widget (0–100) → V1   (label: "Slider")
-
-  Hardware:
-    ESP32 — no extra hardware needed
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// Called every time the dashboard writes to V1 (e.g. a Slider widget)
+// Dashboard writes any value to V1 — printed to Serial
 IoTDATAHUB_WRITE(V1) {
-    // All the ways you can read the incoming value:
-    Serial.println("--- V1 received ---");
-    Serial.print("  asStr():    "); Serial.println(param.asStr());
-    Serial.print("  asInt():    "); Serial.println(param.asInt());
-    Serial.print("  asLong():   "); Serial.println(param.asLong());
-    Serial.print("  asFloat():  "); Serial.println(param.asFloat(), 3);
-    Serial.print("  asDouble(): "); Serial.println(param.asDouble(), 5);
-    Serial.println("-------------------");
+    Serial.print("Received on V1: ");
+    Serial.println(param.asStr());
 }
 
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    Serial.println("[App] Move the slider on the dashboard to see values.");
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);

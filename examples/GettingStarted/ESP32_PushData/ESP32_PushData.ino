@@ -1,57 +1,20 @@
-/*************************************************************
-  IoTDataHub — Getting Started: Push Data (ESP32)
-
-  Demonstrates pushing data from the device to the dashboard
-  on a timed interval — no blocking delay() used.
-
-  The device sends its uptime (in seconds) to V5 every second.
-
-  Dashboard setup:
-    Value Display widget → V5  (label: "Uptime (s)")
-
-  Hardware:
-    ESP32 (any variant)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// ── Timer — sends data without blocking loop() ─────────────────
-unsigned long lastSendMs = 0;
-const unsigned long SEND_INTERVAL_MS = 1000;
+// Potentiometer or sensor on GPIO34
+#define SENSOR_PIN 34
 
-void sendUptime() {
-    unsigned long uptimeSec = millis() / 1000;
-    IoTDataHub.virtualWrite(V5, uptimeSec);
-    Serial.printf("[App] Uptime: %lu s\n", uptimeSec);
-}
-
-IoTDATAHUB_READ(V5) {
-    IoTDataHub.virtualWrite(V5, millis() / 1000);
-}
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected — starting uptime stream.");
-    // Send immediately on connect so dashboard isn't blank
-    sendUptime();
-    lastSendMs = millis();
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
@@ -61,10 +24,11 @@ void setup() {
 void loop() {
     IoTDataHub.run();
 
-    // Non-blocking periodic publish
-    if (IoTDataHub.connected() &&
-        millis() - lastSendMs >= SEND_INTERVAL_MS) {
-        lastSendMs = millis();
-        sendUptime();
-    }
+    int value = analogRead(SENSOR_PIN);
+    IoTDataHub.virtualWrite(V1, value);
+
+    Serial.print("Sent: ");
+    Serial.println(value);
+
+    delay(2000);
 }

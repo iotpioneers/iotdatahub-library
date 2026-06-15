@@ -1,60 +1,32 @@
-/*************************************************************
-  IoTDataHub — Getting Started: ESP8266 Blink
-
-  The simplest possible IoTDataHub sketch.
-  A Button widget on the dashboard controls the built-in LED
-  on the ESP8266 (GPIO2 / D4 on NodeMCU).
-
-  Dashboard setup:
-    Button widget → V1 (Switch mode)
-
-  Hardware:
-    ESP8266 (NodeMCU, Wemos D1 Mini, or similar)
-    Built-in LED on GPIO2
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp8266.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-#define LED_PIN 2   // Built-in LED on most ESP8266 boards (active LOW)
+// Built-in LED on most ESP8266 boards (active LOW)
+#define LED_PIN 2
 
 IoTDATAHUB_WRITE(V1) {
     int state = param.asInt();
-    // Built-in LED is active-LOW on most ESP8266 boards
     digitalWrite(LED_PIN, state ? LOW : HIGH);
-    Serial.printf("[App] LED %s\n", state ? "ON" : "OFF");
+    Serial.print("LED: ");
+    Serial.println(state ? "ON" : "OFF");
 }
 
-IoTDATAHUB_READ(V1) {
-    // Return inverted state because LED is active-LOW
-    IoTDataHub.virtualWrite(V1, !digitalRead(LED_PIN));
-}
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, HIGH);  // OFF (active-LOW)
-
+    digitalWrite(LED_PIN, HIGH); // OFF (active LOW)
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 

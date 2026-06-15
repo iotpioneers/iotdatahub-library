@@ -1,65 +1,31 @@
-/*************************************************************
-  IoTDataHub — Getting Started: Virtual Pin Write (ESP32)
-
-  Shows how the dashboard can write values to the device
-  and how the device can echo them back.
-
-  Dashboard setup:
-    Slider widget (0–255)  → V0   (label: "Brightness")
-    Value Display widget   → V1   (label: "Last received")
-
-  Hardware:
-    ESP32 — no extra hardware needed (values logged to Serial)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-int lastValue = 0;
+#define LED_PIN 4
 
-// Dashboard slider writes a value (0–255) to V0
-IoTDATAHUB_WRITE(V0) {
-    lastValue = param.asInt();
-    Serial.printf("[App] Received value on V0: %d\n", lastValue);
-
-    // Echo the received value to V1 so the dashboard can confirm
-    IoTDataHub.virtualWrite(V1, lastValue);
+// Dashboard button or slider writes to V1
+IoTDATAHUB_WRITE(V1) {
+    int state = param.asInt();
+    digitalWrite(LED_PIN, state ? HIGH : LOW);
+    Serial.print("V1 received: ");
+    Serial.println(state);
 }
 
-// Dashboard requests the current value stored on V0
-IoTDATAHUB_READ(V0) {
-    IoTDataHub.virtualWrite(V0, lastValue);
-}
-
-IoTDATAHUB_READ(V1) {
-    IoTDataHub.virtualWrite(V1, lastValue);
-}
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    // Sync dashboard with the last known value
-    IoTDataHub.virtualWrite(V0, lastValue);
-    IoTDataHub.virtualWrite(V1, lastValue);
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
+    pinMode(LED_PIN, OUTPUT);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
