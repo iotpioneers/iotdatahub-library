@@ -10,24 +10,31 @@
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
-
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
-}
-
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
 IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
+
+    float temp = 23.4;
+    float hum  = 58.0;
+    long  uptime = millis() / 1000;
+
+    // Format values with units as strings
+    char tempStr[16], humStr[16], uptimeStr[32];
+    snprintf(tempStr,   sizeof(tempStr),   "%.1f C",   temp);
+    snprintf(humStr,    sizeof(humStr),    "%.0f %%",  hum);
+    snprintf(uptimeStr, sizeof(uptimeStr), "%ldh %ldm %lds",
+             uptime / 3600, (uptime % 3600) / 60, uptime % 60);
+
+    IoTDataHub.virtualWrite(V5, tempStr);
+    IoTDataHub.virtualWrite(V6, humStr);
+    IoTDataHub.virtualWrite(V7, uptimeStr);
+
+    delay(2000);
 }

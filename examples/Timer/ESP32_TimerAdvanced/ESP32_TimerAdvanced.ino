@@ -5,18 +5,34 @@
 #define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
+#include <IoTDataHubTimer.h>
 
 // Replace xxxxx... with your WiFi name and password
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
+IoTDataHubTimer timer;
+int sampleTimerId = -1;
 
-// Dashboard button controls LED
+void sendSample() {
+    int value = analogRead(A0);
+    IoTDataHub.virtualWrite(V1, value);
+}
+
+// Dashboard button pauses (1) or resumes (0) sampling
+IoTDATAHUB_WRITE(V2) {
+    if (param.asInt() == 1) {
+        timer.disable(sampleTimerId);
+        Serial.println("Sampling paused");
+    } else {
+        timer.enable(sampleTimerId);
+        Serial.println("Sampling resumed");
+    }
+}
+
+// Dashboard slider changes sampling interval (10–5000 ms)
 IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+    timer.changeInterval(sampleTimerId, param.asLong());
 }
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
@@ -24,10 +40,11 @@ IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
+    sampleTimerId = timer.setInterval(1000L, sendSample);
 }
 
 void loop() {
     IoTDataHub.run();
+    timer.run();
 }

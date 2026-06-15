@@ -13,10 +13,17 @@ const char* WIFI_PASS = "xxxxxxxxxxx";
 // LED on GPIO4
 #define LED_PIN 4
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+int strobeEnabled  = 0;
+int strobeInterval = 500; // ms
+
+// Dashboard button enables/disables strobe
+IoTDATAHUB_WRITE(V1) {
+    strobeEnabled = param.asInt();
+}
+
+// Dashboard slider sets flash interval (100–2000 ms)
+IoTDATAHUB_WRITE(V2) {
+    strobeInterval = param.asInt();
 }
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
@@ -30,4 +37,11 @@ void setup() {
 
 void loop() {
     IoTDataHub.run();
+
+    if (strobeEnabled) {
+        digitalWrite(LED_PIN, HIGH);
+        delay(strobeInterval);
+        digitalWrite(LED_PIN, LOW);
+        delay(strobeInterval);
+    }
 }

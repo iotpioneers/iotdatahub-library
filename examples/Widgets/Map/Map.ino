@@ -5,29 +5,31 @@
 #define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
+#include <IoTDataHubWidgetMap.h>
 
 // Replace xxxxx... with your WiFi name and password
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
+IoTDataHubWidgetMap map(V7);
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
-}
+// Simulated GPS coordinates (replace with real GPS readings)
+float latitude  = -1.9500;
+float longitude =  30.0588;
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
 IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
+
+    // Send location to dashboard map (marker index 1)
+    map.location(1, latitude, longitude, "Device");
+
+    delay(5000);
 }

@@ -5,29 +5,35 @@
 #define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
+#include <time.h>
 
 // Replace xxxxx... with your WiFi name and password
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
-
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+IoTDATAHUB_CONNECTED() {
+    Serial.println("Connected!");
+    // Sync NTP after connecting
+    configTime(0, 0, "pool.ntp.org");
 }
 
-IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
 IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
+
+    struct tm timeinfo;
+    if (getLocalTime(&timeinfo)) {
+        char timeStr[32];
+        strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &timeinfo);
+        IoTDataHub.virtualWrite(V8, timeStr);
+        IoTDataHub.virtualWrite(V9, (long)time(nullptr));
+    }
+
+    delay(1000);
 }

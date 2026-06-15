@@ -10,24 +10,31 @@
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
+// Button on GPIO2 (wired to GND)
+#define BTN_PIN 2
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
-}
+int lastState = HIGH;
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
 IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(BTN_PIN, INPUT_PULLUP);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
+
+    int state = digitalRead(BTN_PIN);
+
+    if (state != lastState) {
+        lastState = state;
+        int pressed = (state == LOW) ? 1 : 0;
+        IoTDataHub.virtualWrite(V1, pressed);
+        Serial.print("Button: ");
+        Serial.println(pressed ? "PRESSED" : "RELEASED");
+        delay(50); // debounce
+    }
 }

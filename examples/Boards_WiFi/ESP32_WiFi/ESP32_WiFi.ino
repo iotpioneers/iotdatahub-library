@@ -13,10 +13,11 @@ const char* WIFI_PASS = "xxxxxxxxxxx";
 // LED on GPIO4
 #define LED_PIN 4
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
+IoTDATAHUB_WRITE(V1) {
     int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+    digitalWrite(LED_PIN, state);
+    Serial.print("LED: ");
+    Serial.println(state ? "ON" : "OFF");
 }
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
@@ -30,4 +31,7 @@ void setup() {
 
 void loop() {
     IoTDataHub.run();
+
+    IoTDataHub.virtualWrite(V5, millis() / 1000);
+    delay(1000);
 }

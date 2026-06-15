@@ -10,13 +10,20 @@
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
+// Dashboard terminal sends text to V10, device replies on V11
+IoTDATAHUB_WRITE(V10) {
+    String cmd = String(param.asStr());
+    cmd.trim();
+    Serial.print("Command: ");
+    Serial.println(cmd);
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+    if (cmd == "hello") {
+        IoTDataHub.virtualWrite(V11, "Hi from IoTDataHub!");
+    } else if (cmd == "uptime") {
+        IoTDataHub.virtualWrite(V11, millis() / 1000);
+    } else {
+        IoTDataHub.virtualWrite(V11, "Unknown command");
+    }
 }
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
@@ -24,7 +31,6 @@ IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 

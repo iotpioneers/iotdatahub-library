@@ -13,10 +13,17 @@ const char* WIFI_PASS = "xxxxxxxxxxx";
 // LED on GPIO4
 #define LED_PIN 4
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+int blinkEnabled = 0;
+int blinkInterval = 500;
+
+// Dashboard button enables/disables blinking
+IoTDATAHUB_WRITE(V1) {
+    blinkEnabled = param.asInt();
+}
+
+// Dashboard slider sets blink interval in ms
+IoTDATAHUB_WRITE(V2) {
+    blinkInterval = param.asInt();
 }
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
@@ -30,4 +37,11 @@ void setup() {
 
 void loop() {
     IoTDataHub.run();
+
+    if (blinkEnabled) {
+        digitalWrite(LED_PIN, HIGH);
+        delay(blinkInterval);
+        digitalWrite(LED_PIN, LOW);
+        delay(blinkInterval);
+    }
 }

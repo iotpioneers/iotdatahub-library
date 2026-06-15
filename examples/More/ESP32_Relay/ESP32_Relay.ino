@@ -10,21 +10,29 @@
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
+// Relay module on GPIO26 (active HIGH)
+#define RELAY_PIN 26
 
-// Dashboard button controls LED
+// Dashboard button controls relay
 IoTDATAHUB_WRITE(V3) {
     int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+    digitalWrite(RELAY_PIN, state);
+    Serial.print("Relay: ");
+    Serial.println(state ? "ON" : "OFF");
 }
 
-IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
-IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
+// Always turn relay OFF on disconnect for safety
+IoTDATAHUB_DISCONNECTED() {
+    digitalWrite(RELAY_PIN, LOW);
+    Serial.println("Disconnected. Relay OFF.");
+}
+
+IoTDATAHUB_CONNECTED() { Serial.println("Connected!"); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(RELAY_PIN, OUTPUT);
+    digitalWrite(RELAY_PIN, LOW);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 

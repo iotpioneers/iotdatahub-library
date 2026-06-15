@@ -10,16 +10,22 @@
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
 #define LED_PIN 4
 
+int ledState = 0;
+
 // Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+IoTDATAHUB_WRITE(V1) {
+    ledState = param.asInt();
+    digitalWrite(LED_PIN, ledState);
 }
 
-IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+// On reconnect, push current state so dashboard stays in sync
+IoTDATAHUB_CONNECTED() {
+    Serial.println("Connected!");
+    IoTDataHub.virtualWrite(V1, ledState);
+}
+
 IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {

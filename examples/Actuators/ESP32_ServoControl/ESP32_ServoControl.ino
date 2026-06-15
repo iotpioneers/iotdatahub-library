@@ -5,18 +5,23 @@
 #define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
+#include <ESP32Servo.h>
 
 // Replace xxxxx... with your WiFi name and password
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
+// Servo on GPIO13
+#define SERVO_PIN 13
 
-// Dashboard button controls LED
+Servo servo;
+
+// Dashboard slider (0–180) controls servo angle
 IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+    int angle = param.asInt();
+    servo.write(angle);
+    Serial.print("Servo angle: ");
+    Serial.println(angle);
 }
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
@@ -24,7 +29,7 @@ IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
+    servo.attach(SERVO_PIN);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 

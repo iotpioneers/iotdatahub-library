@@ -10,13 +10,24 @@
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
 #define LED_PIN 4
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
+// Dashboard dropdown sends 1, 2, or 3
+IoTDATAHUB_WRITE(V2) {
+    int mode = param.asInt();
+    Serial.print("Mode selected: ");
+    Serial.println(mode);
+
+    if (mode == 1) {
+        digitalWrite(LED_PIN, HIGH);
+    } else if (mode == 2) {
+        digitalWrite(LED_PIN, LOW);
+    } else if (mode == 3) {
+        // blink once to confirm
+        digitalWrite(LED_PIN, HIGH);
+        delay(200);
+        digitalWrite(LED_PIN, LOW);
+    }
 }
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }

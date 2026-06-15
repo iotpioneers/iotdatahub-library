@@ -5,29 +5,39 @@
 #define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 // Replace xxxxx... with your WiFi name and password
 const char* WIFI_SSID = "xxxxxxxxxxx";
 const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// LED on GPIO4
-#define LED_PIN 4
+// DS18B20 on GPIO15
+#define ONE_WIRE_BUS 15
 
-// Dashboard button controls LED
-IoTDATAHUB_WRITE(V3) {
-    int state = param.asInt();
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
-}
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
 
 IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
 IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_PIN, OUTPUT);
+    sensors.begin();
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
+
+    sensors.requestTemperatures();
+    float temperature = sensors.getTempCByIndex(0);
+
+    IoTDataHub.virtualWrite(V2, temperature);
+
+    Serial.print("Temperature: ");
+    Serial.print(temperature);
+    Serial.println(" C");
+
+    delay(5000);
 }
