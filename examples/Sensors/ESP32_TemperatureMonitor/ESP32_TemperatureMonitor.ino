@@ -1,76 +1,25 @@
-/*************************************************************
-  IoTDataHub — Sensor: ESP32 Temperature Monitor (DS18B20)
-
-  Reads temperature from one or more DS18B20 1-Wire sensors
-  and pushes to the dashboard every 5 seconds.
-
-  Dashboard setup:
-    Gauge widget → V2  (label: "Temperature °C", range: -10 to 85)
-
-  Hardware:
-    ESP32
-    DS18B20 sensor on GPIO15
-      - VCC  → 3.3V
-      - GND  → GND
-      - DATA → GPIO15  (+ 4.7kΩ pull-up to 3.3V)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
-    - OneWire library:       https://github.com/PaulStoffregen/OneWire
-    - DallasTemperature lib: https://github.com/milesburton/Arduino-Temperature-Control-Library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
+// DS18B20 on GPIO15
 #define ONE_WIRE_BUS 15
 
-OneWire           oneWire(ONE_WIRE_BUS);
+OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
-unsigned long lastReadMs = 0;
-const unsigned long READ_INTERVAL_MS = 5000;
-
-float lastTemp = 0.0f;
-
-void readAndSend() {
-    sensors.requestTemperatures();
-    float t = sensors.getTempCByIndex(0);
-
-    if (t == DEVICE_DISCONNECTED_C) {
-        Serial.println("[App] DS18B20 not found — check wiring.");
-        return;
-    }
-
-    lastTemp = t;
-    IoTDataHub.virtualWrite(V2, t);
-    Serial.printf("[App] Temperature: %.2f °C\n", t);
-}
-
-IoTDATAHUB_READ(V2) {
-    IoTDataHub.virtualWrite(V2, lastTemp);
-}
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    readAndSend();
-    lastReadMs = millis();
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
@@ -81,9 +30,14 @@ void setup() {
 void loop() {
     IoTDataHub.run();
 
-    if (IoTDataHub.connected() &&
-        millis() - lastReadMs >= READ_INTERVAL_MS) {
-        lastReadMs = millis();
-        readAndSend();
-    }
+    sensors.requestTemperatures();
+    float temperature = sensors.getTempCByIndex(0);
+
+    IoTDataHub.virtualWrite(V2, temperature);
+
+    Serial.print("Temperature: ");
+    Serial.print(temperature);
+    Serial.println(" C");
+
+    delay(5000);
 }
