@@ -1,91 +1,45 @@
-/*************************************************************
-  IoTDataHub — Actuator: ESP32 NeoPixel RGB Strip
-
-  A slider on the dashboard shifts a rainbow colour gradient
-  across a NeoPixel strip.  A second slider controls brightness.
-
-  Dashboard setup:
-    Slider widget (0–255) → V1  (label: "Color Shift")
-    Slider widget (0–255) → V2  (label: "Brightness")
-
-  Hardware:
-    ESP32
-    NeoPixel (WS2812B) strip — 30 LEDs on GPIO8
-      - DIN → GPIO8
-      - VCC → 5V (external 5V supply for > ~8 LEDs)
-      - GND → GND (common with ESP32)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
-    - Adafruit NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 #include <Adafruit_NeoPixel.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-#define NEOPIXEL_PIN   8
-#define NEOPIXEL_COUNT 30
+// NeoPixel strip on GPIO8, 30 LEDs
+#define LED_PIN    8
+#define LED_COUNT  30
 
-Adafruit_NeoPixel strip(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-int colorShift  = 0;
-int brightness  = 128;
-
-uint32_t colorWheel(byte pos) {
-    if (pos < 85)  return strip.Color(pos * 3,       255 - pos * 3, 0);
-    if (pos < 170) { pos -= 85;  return strip.Color(255 - pos * 3, 0, pos * 3); }
-    pos -= 170;    return strip.Color(0, pos * 3, 255 - pos * 3);
-}
-
-void applyStrip() {
-    strip.setBrightness(brightness);
+// Dashboard slider (0–255) sets color hue shift
+IoTDATAHUB_WRITE(V1) {
+    int hue = param.asInt();
     for (int i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, colorWheel((colorShift + i * 8) & 255));
+        strip.setPixelColor(i, strip.ColorHSV((hue + i * 256) * 256));
     }
     strip.show();
 }
 
-// Dashboard slider → colour shift position
-IoTDATAHUB_WRITE(V1) {
-    colorShift = param.asInt();
-    applyStrip();
-    Serial.printf("[App] Color shift: %d\n", colorShift);
-}
-
-// Dashboard slider → brightness (0–255)
+// Dashboard slider (0–255) sets brightness
 IoTDATAHUB_WRITE(V2) {
-    brightness = constrain(param.asInt(), 0, 255);
-    applyStrip();
-    Serial.printf("[App] Brightness: %d\n", brightness);
+    strip.setBrightness(param.asInt());
+    strip.show();
 }
 
-IoTDATAHUB_READ(V1) { IoTDataHub.virtualWrite(V1, colorShift); }
-IoTDATAHUB_READ(V2) { IoTDataHub.virtualWrite(V2, brightness); }
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    IoTDataHub.virtualWrite(V1, colorShift);
-    IoTDataHub.virtualWrite(V2, brightness);
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
     strip.begin();
-    applyStrip();
+    strip.setBrightness(50);
+    strip.show();
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
