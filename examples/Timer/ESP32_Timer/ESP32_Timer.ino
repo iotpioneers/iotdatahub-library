@@ -1,53 +1,37 @@
-/*
- * ESP32_Timer.ino — IoTDataHubTimer demo
- *
- * Demonstrates using IoTDataHubTimer to schedule multiple callbacks
- * at different intervals without blocking loop().
- *
- * Dashboard setup:
- *   V1 — Value display  (temperature, updated every 2 s)
- *   V2 — Value display  (uptime seconds, updated every 1 s)
- *   V3 — LED widget     (heartbeat blink, every 500 ms)
- *
- * Board: ESP32
- */
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 #include <IoTDataHubTimer.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
 IoTDataHubTimer timer;
-bool ledState = false;
-
-void sendTemperature() {
-    float temp = 20.0 + random(-50, 50) / 10.0;   // simulated sensor
-    IoTDataHub.virtualWrite(V1, temp);
-}
 
 void sendUptime() {
-    IoTDataHub.virtualWrite(V2, (long)(millis() / 1000));
+    IoTDataHub.virtualWrite(V1, millis() / 1000);
 }
 
-void heartbeat() {
-    ledState = !ledState;
-    IoTDataHub.virtualWrite(V3, ledState ? 255 : 0);
+void sendTemperature() {
+    // Replace with real sensor reading
+    float temp = 22.5;
+    IoTDataHub.virtualWrite(V2, temp);
 }
+
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 
-    timer.setInterval(2000L, sendTemperature);
     timer.setInterval(1000L, sendUptime);
-    timer.setInterval(500L,  heartbeat);
+    timer.setInterval(5000L, sendTemperature);
 }
 
 void loop() {
