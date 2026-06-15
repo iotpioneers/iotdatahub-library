@@ -18,18 +18,20 @@
     - MKRGSM library (built-in with Arduino IDE for this board)
  *************************************************************/
 
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+
 #include <MKRGSM.h>
 #include <IoTDataHubSimpleMKRGSM.h>
 
 // ── Cellular credentials ──────────────────────────────────────
-const char PIN[]  = "";            // SIM PIN — leave blank if none
-const char APN[]  = "internet";   // Your carrier's APN
+const char PIN[]   = "";           // SIM PIN — leave blank if none
+const char APN[]   = "internet";  // Your carrier's APN
 const char LOGIN[] = "";
 const char PASS[]  = "";
-
-// ── Device credentials ────────────────────────────────────────
-const char DEVICE_ID[]    = "your-device-id-here";
-const char DEVICE_TOKEN[] = "your-device-token-here";
 
 GSM         gsm;
 GPRS        gprs;

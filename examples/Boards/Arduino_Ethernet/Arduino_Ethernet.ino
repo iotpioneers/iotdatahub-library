@@ -19,7 +19,11 @@
     - Ethernet library (built-in Arduino)
  *************************************************************/
 
-#define IoTDATAHUB_DEVICE_TOKEN  "your-device-token-here"
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
 
 #include <SPI.h>
 #include <IoTDataHubSimpleEthernet.h>
@@ -67,8 +71,7 @@ void setup() {
     Ethernet.begin(mac);
     delay(1000);  // Give Ethernet shield time to initialise
 
-    IoTDataHub.beginNetwork("your-device-id-here",
-                            IoTDATAHUB_DEVICE_TOKEN);
+    IoTDataHub.beginNetwork(IoTDATAHUB_DEVICE_ID, IoTDATAHUB_DEVICE_TOKEN);
 }
 
 void loop() {

@@ -31,9 +31,11 @@ const char APN[]  = "internet";   // Your carrier's APN
 const char GUSER[] = "";
 const char GPASS[] = "";
 
-// ── Device credentials ────────────────────────────────────────
-const char DEVICE_ID[]    = "your-device-id-here";
-const char DEVICE_TOKEN[] = "your-device-token-here";
+// ── Device credentials — copy from https://www.iotdatahub.rw ──
+// #define IoTDATAHUB_USER_NAME         "XXXXXX"
+// #define IoTDATAHUB_ORGANIZATION_NAME "XXXXXX"
+const char DEVICE_TOKEN[] = "XXXXXX";
+const char DEVICE_ID[]    = "XXXXXX";
 
 // ── Hardware serial to modem ──────────────────────────────────
 #define SerialAT Serial1

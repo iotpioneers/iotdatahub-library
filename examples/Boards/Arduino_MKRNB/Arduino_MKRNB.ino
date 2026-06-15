@@ -18,16 +18,18 @@
     - MKRNB library (built-in with Arduino IDE for this board)
  *************************************************************/
 
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+
 #include <MKRNB.h>
 #include <IoTDataHubSimpleMKRNB.h>
 
 // ── Cellular credentials ──────────────────────────────────────
-const char PIN[]  = "";          // SIM PIN — leave blank if none
-const char APN[]  = "iot.1nce.net";  // NB-IoT APN (e.g. 1NCE)
-
-// ── Device credentials ────────────────────────────────────────
-const char DEVICE_ID[]    = "your-device-id-here";
-const char DEVICE_TOKEN[] = "your-device-token-here";
+const char PIN[] = "";              // SIM PIN — leave blank if none
+const char APN[] = "iot.1nce.net"; // NB-IoT APN (e.g. 1NCE)
 
 NB        nb;
 GPRS      gprs;
