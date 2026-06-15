@@ -12,9 +12,11 @@
     - PubSubClient library
  *************************************************************/
 
-#define IoTDATAHUB_USER_NAME         "IoTPioneers Ltd"
-#define IoTDATAHUB_ORGANIZATION_NAME  "IoT Data Hub"
-#define IoTDATAHUB_DEVICE_TOKEN       "01ac9daf118e6a9ca20cef6e55f0ddb5"
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
 
 #include <IoTDataHubSimpleEsp32.h>
 
