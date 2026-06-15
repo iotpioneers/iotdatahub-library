@@ -1,33 +1,8 @@
-/*************************************************************
-  IoTDataHub — Boards Ethernet: ENC28J60
-
-  Connects to IoTDataHub via an ENC28J60-based Ethernet module
-  using the UIPEthernet library (drop-in replacement for the
-  standard Ethernet library, no SPI hardware change needed).
-
-  Dashboard setup:
-    Button widget (Switch mode) → V1   "LED"
-    Value Display               → V5   "Uptime s"
-
-  Hardware:
-    Arduino Uno / Mega + ENC28J60 Ethernet module (SPI):
-      SCK  → D13
-      MISO → D12
-      MOSI → D11
-      CS   → D10
-    LED on pin 9  (+ 220Ω to GND)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
-    - UIPEthernet library: https://github.com/UIPEthernet/UIPEthernet
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <SPI.h>
 #include <IoTDataHubSimpleENC28J60.h>
@@ -35,37 +10,26 @@
 // Unique MAC address — change last byte per device
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x01 };
 
+// LED on pin 9
 #define LED_PIN 9
 
-unsigned long lastSendMs = 0;
-const unsigned long SEND_INTERVAL_MS = 2000;
-
+// Dashboard button controls LED
 IoTDATAHUB_WRITE(V1) {
     int state = param.asInt();
     digitalWrite(LED_PIN, state);
-    IoTDataHub.virtualWrite(V1, state);
-    Serial.print("[App] LED ");
+    Serial.print("LED: ");
     Serial.println(state ? "ON" : "OFF");
 }
 
-IoTDATAHUB_READ(V1) { IoTDataHub.virtualWrite(V1, digitalRead(LED_PIN)); }
-IoTDATAHUB_READ(V5) { IoTDataHub.virtualWrite(V5, millis() / 1000);      }
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    IoTDataHub.virtualWrite(V1, digitalRead(LED_PIN));
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(9600);
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
 
-    Ethernet.begin(mac);        // DHCP
+    Ethernet.begin(mac);
     delay(1000);
 
     IoTDataHub.beginNetwork(IoTDATAHUB_DEVICE_ID, IoTDATAHUB_DEVICE_TOKEN);
@@ -74,9 +38,6 @@ void setup() {
 void loop() {
     IoTDataHub.run();
 
-    if (IoTDataHub.connected() &&
-        millis() - lastSendMs >= SEND_INTERVAL_MS) {
-        lastSendMs = millis();
-        IoTDataHub.virtualWrite(V5, millis() / 1000);
-    }
+    IoTDataHub.virtualWrite(V5, millis() / 1000);
+    delay(2000);
 }
