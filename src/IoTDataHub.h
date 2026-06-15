@@ -41,7 +41,7 @@
 #include "IoTDataHubHandlers.h"
 
 #ifndef IOTDH_MQTT_SERVER
-  #define IOTDH_MQTT_SERVER "16.170.208.121"
+  #define IOTDH_MQTT_SERVER "16.170.205.70"
 #endif
 #ifndef IOTDH_MQTT_PORT
   #define IOTDH_MQTT_PORT 1883
