@@ -1,74 +1,31 @@
-/*************************************************************
-  IoTDataHub — Boards WiFi: Arduino MKR WiFi 1010
-
-  Full standalone example for the Arduino MKR WiFi 1010 board
-  using the WiFiNINA transport.
-
-  Dashboard setup:
-    Button widget (Switch mode) → V1   "LED"
-    Value Display               → V5   "Uptime s"
-
-  Hardware:
-    Arduino MKR WiFi 1010
-    On-board LED (LED_BUILTIN)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
-    - WiFiNINA library (available in Arduino Library Manager)
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleWiFiNINA.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
-
-unsigned long lastSendMs = 0;
-const unsigned long SEND_INTERVAL_MS = 1000;
-
-int ledState = 0;
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
 IoTDATAHUB_WRITE(V1) {
-    ledState = param.asInt();
-    digitalWrite(LED_BUILTIN, ledState);
-    IoTDataHub.virtualWrite(V1, ledState);
-    Serial.print("[App] LED ");
-    Serial.println(ledState ? "ON" : "OFF");
+    int state = param.asInt();
+    digitalWrite(LED_BUILTIN, state);
+    Serial.print("LED: ");
+    Serial.println(state ? "ON" : "OFF");
 }
 
-IoTDATAHUB_READ(V1) { IoTDataHub.virtualWrite(V1, ledState);         }
-IoTDATAHUB_READ(V5) { IoTDataHub.virtualWrite(V5, millis() / 1000);  }
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    IoTDataHub.virtualWrite(V1, ledState);
-    IoTDataHub.virtualWrite(V5, millis() / 1000);
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
     pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
-
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
-
-    if (IoTDataHub.connected() &&
-        millis() - lastSendMs >= SEND_INTERVAL_MS) {
-        lastSendMs = millis();
-        IoTDataHub.virtualWrite(V5, millis() / 1000);
-    }
 }

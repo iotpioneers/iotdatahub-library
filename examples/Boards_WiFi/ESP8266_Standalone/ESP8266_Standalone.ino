@@ -1,84 +1,35 @@
-/*************************************************************
-  IoTDataHub — Boards WiFi: ESP8266 Standalone
-
-  Full standalone ESP8266 WiFi example with explicit credentials.
-  Mirrors the ESP32_WiFi example but targets ESP8266 hardware.
-
-  Dashboard setup:
-    Button widget (Switch mode) → V1   "LED"
-    Value Display               → V5   "Uptime s"
-
-  Hardware:
-    ESP8266 (NodeMCU v3, Wemos D1 Mini, or similar)
-    Built-in LED on GPIO2  (active-LOW)
-
-  Notes:
-    - GPIO2 is the built-in LED on most ESP8266 boards (active-LOW)
-    - Change LED_PIN to match your board if needed
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
-    - ESP8266 Arduino core
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp8266.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-#define LED_PIN 2   // Built-in LED, active-LOW on most ESP8266 boards
-
-unsigned long lastSendMs = 0;
-const unsigned long SEND_INTERVAL_MS = 1000;
+// Built-in LED on GPIO2 (active LOW on most ESP8266 boards)
+#define LED_PIN 2
 
 IoTDATAHUB_WRITE(V1) {
     int state = param.asInt();
-    // Invert for active-LOW LED
     digitalWrite(LED_PIN, state ? LOW : HIGH);
-    IoTDataHub.virtualWrite(V1, state);
-    Serial.printf("[App] LED %s\n", state ? "ON" : "OFF");
+    Serial.print("LED: ");
+    Serial.println(state ? "ON" : "OFF");
 }
 
-IoTDATAHUB_READ(V1) {
-    // Return logical state (inverted from physical pin)
-    IoTDataHub.virtualWrite(V1, !digitalRead(LED_PIN));
-}
-
-IoTDATAHUB_READ(V5) {
-    IoTDataHub.virtualWrite(V5, millis() / 1000);
-}
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    IoTDataHub.virtualWrite(V1, !digitalRead(LED_PIN));
-    IoTDataHub.virtualWrite(V5, millis() / 1000);
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, HIGH);  // OFF (active-LOW)
-
+    digitalWrite(LED_PIN, HIGH); // OFF (active LOW)
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {
     IoTDataHub.run();
-
-    if (IoTDataHub.connected() &&
-        millis() - lastSendMs >= SEND_INTERVAL_MS) {
-        lastSendMs = millis();
-        IoTDataHub.virtualWrite(V5, millis() / 1000);
-    }
 }
