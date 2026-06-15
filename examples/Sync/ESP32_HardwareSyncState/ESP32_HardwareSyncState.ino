@@ -1,78 +1,36 @@
-/*************************************************************
-  IoTDataHub — Sync: ESP32 Hardware Sync State
-
-  Demonstrates how to re-sync the dashboard with the device's
-  last-known values every time the device reconnects.
-
-  Without this, after a reboot or reconnect the dashboard
-  shows stale or blank values until the next sensor update.
-  IoTDATAHUB_CONNECTED() is the right place to push all
-  current values so the dashboard stays accurate.
-
-  Dashboard setup:
-    Slider widget (0–1024) → V0   "Slider"
-    Value Display          → V2   "Uptime s"
-    Button widget          → D13  (or V3 in Switch mode for LED)
-
-  Hardware:
-    ESP32
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
-
-int   sliderValue = 0;
-bool  ledState    = false;
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
 #define LED_PIN 4
 
-// Runs every time (re-)connected — push all current values to dashboard
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected — syncing state with dashboard.");
+int ledState = 0;
 
-    // Push every pin the dashboard cares about
-    IoTDataHub.virtualWrite(V0, sliderValue);
-    IoTDataHub.virtualWrite(V2, millis() / 1000);
-    IoTDataHub.virtualWrite(V3, ledState ? 1 : 0);
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
-
-// Dashboard slider → local variable
-IoTDATAHUB_WRITE(V0) {
-    sliderValue = param.asInt();
-    Serial.printf("[App] Slider V0: %d\n", sliderValue);
-}
-
-// Dashboard button → LED
-IoTDATAHUB_WRITE(V3) {
+// Dashboard button controls LED
+IoTDATAHUB_WRITE(V1) {
     ledState = param.asInt();
     digitalWrite(LED_PIN, ledState);
-    Serial.printf("[App] LED %s\n", ledState ? "ON" : "OFF");
 }
 
-IoTDATAHUB_READ(V0) { IoTDataHub.virtualWrite(V0, sliderValue);      }
-IoTDATAHUB_READ(V2) { IoTDataHub.virtualWrite(V2, millis() / 1000);  }
-IoTDATAHUB_READ(V3) { IoTDataHub.virtualWrite(V3, ledState ? 1 : 0); }
+// On reconnect, push current state so dashboard stays in sync
+IoTDATAHUB_CONNECTED() {
+    Serial.println("Connected!");
+    IoTDataHub.virtualWrite(V1, ledState);
+}
+
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
     IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
 }
 

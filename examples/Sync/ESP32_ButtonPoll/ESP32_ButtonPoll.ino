@@ -1,71 +1,22 @@
-/*************************************************************
-  IoTDataHub — Sync: ESP32 Button Poll
-
-  Polls a physical button every loop iteration and pushes its
-  state to the dashboard LED indicator on V1 when it changes.
-  Uses a software debounce timer.
-
-  Dashboard setup:
-    LED widget or Value Display → V1   (label: "Button State")
-
-  Hardware:
-    ESP32
-    Pushbutton on GPIO2  (wired to GND; INPUT_PULLUP used)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
+// Button on GPIO2 (wired to GND)
 #define BTN_PIN 2
 
-int prevBtnState    = -1;
-int currBtnState    = -1;
-unsigned long lastChangeMs = 0;
+int lastState = HIGH;
 
-void checkButton() {
-    // Invert because button is active-LOW (INPUT_PULLUP)
-    int reading = !digitalRead(BTN_PIN);
-
-    // Debounce: only latch after stable for 50 ms
-    if (reading != prevBtnState) {
-        lastChangeMs = millis();
-    }
-    if (millis() - lastChangeMs > 50) {
-        if (reading != currBtnState) {
-            currBtnState = reading;
-            if (IoTDataHub.connected()) {
-                IoTDataHub.virtualWrite(V1, currBtnState);
-                Serial.printf("[App] Button state → %d\n", currBtnState);
-            }
-        }
-    }
-    prevBtnState = reading;
-}
-
-IoTDATAHUB_READ(V1) {
-    IoTDataHub.virtualWrite(V1, currBtnState);
-}
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    IoTDataHub.virtualWrite(V1, currBtnState);
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
@@ -75,5 +26,15 @@ void setup() {
 
 void loop() {
     IoTDataHub.run();
-    checkButton();
+
+    int state = digitalRead(BTN_PIN);
+
+    if (state != lastState) {
+        lastState = state;
+        int pressed = (state == LOW) ? 1 : 0;
+        IoTDataHub.virtualWrite(V1, pressed);
+        Serial.print("Button: ");
+        Serial.println(pressed ? "PRESSED" : "RELEASED");
+        delay(50); // debounce
+    }
 }
