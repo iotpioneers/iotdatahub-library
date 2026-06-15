@@ -12,13 +12,17 @@
  * Board: ESP32
  */
 
+// Copy these from your device page at https://www.iotdatahub.rw
+#define IoTDATAHUB_USER_NAME          "XXXXXX"
+#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
+#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
+#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+
 #include <IoTDataHubSimpleEsp32.h>
 #include <IoTDataHubTimer.h>
 
-#define DEVICE_ID "your-device-id"
-#define TOKEN     "your-auth-token"
-#define SSID      "your-wifi-ssid"
-#define PASS      "your-wifi-password"
+const char* WIFI_SSID = "YourWiFiSSID";
+const char* WIFI_PASS = "YourWiFiPassword";
 
 IoTDataHubTimer timer;
 int sampleTimerId = -1;
@@ -57,7 +61,7 @@ IoTDATAHUB_CONNECTED() {
 
 void setup() {
     Serial.begin(115200);
-    IoTDataHub.begin(DEVICE_ID, TOKEN, SSID, PASS);
+    IoTDataHub.begin(WIFI_SSID, WIFI_PASS);
     sampleTimerId = timer.setInterval(1000L, sendSample);
 }
 
