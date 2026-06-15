@@ -1,66 +1,20 @@
-/*************************************************************
-  IoTDataHub — More: ESP8266 Analog Read (Potentiometer / LDR)
-
-  Reads the ADC (A0) every 500 ms and streams the raw value
-  and a mapped percentage to the dashboard.
-
-  The ESP8266 ADC accepts 0–1V. Use a voltage divider from
-  3.3V if your sensor outputs 0–3.3V.
-
-  Dashboard setup:
-    Gauge widget      → V0  "Raw ADC (0–1023)"
-    Gauge widget      → V1  "Level %"
-    Chart / History   → V1  (trend over time)
-
-  Hardware:
-    ESP8266 (NodeMCU / Wemos D1 Mini)
-    Potentiometer or LDR between 3.3V and GND, wiper to A0
-    (Add a 1:3 voltage divider if source is 3.3V: 100kΩ + 220kΩ)
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp8266.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-unsigned long lastReadMs = 0;
-const unsigned long READ_INTERVAL_MS = 500;
+// Analog sensor on A0
+#define SENSOR_PIN A0
 
-int lastRaw     = 0;
-int lastPercent = 0;
-
-void readAndSend() {
-    lastRaw     = analogRead(A0);
-    lastPercent = map(lastRaw, 0, 1023, 0, 100);
-
-    IoTDataHub.virtualWrite(V0, lastRaw);
-    IoTDataHub.virtualWrite(V1, lastPercent);
-
-    Serial.printf("[App] ADC raw: %d  Level: %d%%\n", lastRaw, lastPercent);
-}
-
-IoTDATAHUB_READ(V0) { IoTDataHub.virtualWrite(V0, lastRaw);     }
-IoTDATAHUB_READ(V1) { IoTDataHub.virtualWrite(V1, lastPercent); }
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    readAndSend();
-    lastReadMs = millis();
-}
-
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
@@ -70,9 +24,17 @@ void setup() {
 void loop() {
     IoTDataHub.run();
 
-    if (IoTDataHub.connected() &&
-        millis() - lastReadMs >= READ_INTERVAL_MS) {
-        lastReadMs = millis();
-        readAndSend();
-    }
+    int rawValue = analogRead(SENSOR_PIN);
+    int percent  = map(rawValue, 0, 1023, 0, 100);
+
+    IoTDataHub.virtualWrite(V0, rawValue);
+    IoTDataHub.virtualWrite(V1, percent);
+
+    Serial.print("Raw: ");
+    Serial.print(rawValue);
+    Serial.print("  Level: ");
+    Serial.print(percent);
+    Serial.println("%");
+
+    delay(500);
 }

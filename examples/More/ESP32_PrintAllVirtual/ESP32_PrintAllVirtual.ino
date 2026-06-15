@@ -1,59 +1,34 @@
-/*************************************************************
-  IoTDataHub — More: Print All Virtual Pins
-
-  A catch-all debug sketch: define IoTDATAHUB_WRITE handlers
-  for every pin you want to monitor and print the received
-  value to Serial. Useful during development to verify the
-  dashboard is sending the right values.
-
-  Dashboard setup:
-    Any widgets writing to V0–V9
-
-  Hardware:
-    ESP32 — no extra hardware needed
-
-  Requirements:
-    - IoTDataHub library
-    - PubSubClient library
- *************************************************************/
-
-// Copy these from your device page at https://www.iotdatahub.rw
-#define IoTDATAHUB_USER_NAME          "XXXXXX"
-#define IoTDATAHUB_ORGANIZATION_NAME  "XXXXXX"
-#define IoTDATAHUB_DEVICE_TOKEN       "XXXXXX"
-#define IoTDATAHUB_DEVICE_ID          "XXXXXX"
+// Replace xxxx... below with values copied from IoT Data Hub platform
+#define IoTDATAHUB_USER_NAME         "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_ORGANIZATION_NAME "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_TOKEN      "xxxxxxxxxxxxxxxxxxxx"
+#define IoTDATAHUB_DEVICE_ID         "xxxxxxxxxxxxxxxxxxxx"
 
 #include <IoTDataHubSimpleEsp32.h>
 
-const char* WIFI_SSID = "YourWiFiSSID";
-const char* WIFI_PASS = "YourWiFiPassword";
+// Replace xxxxx... with your WiFi name and password
+const char* WIFI_SSID = "xxxxxxxxxxx";
+const char* WIFI_PASS = "xxxxxxxxxxx";
 
-// Helper macro expands to a handler that just prints the value
-#define PRINT_PIN(n) \
-    IoTDATAHUB_WRITE(V##n) { \
-        Serial.printf("[App] V%d = \"%s\"  (int=%d  float=%.3f)\n", \
-                      n, param.asStr(), param.asInt(), param.asFloat()); \
-    }
-
-PRINT_PIN(0)
-PRINT_PIN(1)
-PRINT_PIN(2)
-PRINT_PIN(3)
-PRINT_PIN(4)
-PRINT_PIN(5)
-PRINT_PIN(6)
-PRINT_PIN(7)
-PRINT_PIN(8)
-PRINT_PIN(9)
-
-IoTDATAHUB_CONNECTED() {
-    Serial.println("[App] Connected to IoTDataHub!");
-    Serial.println("[App] Listening on V0–V9. Check Serial Monitor.");
+// Print any value written to a virtual pin
+#define PRINT_PIN(pin) IoTDATAHUB_WRITE(pin) { \
+    Serial.print("V" #pin ": ");               \
+    Serial.println(param.asStr());             \
 }
 
-IoTDATAHUB_DISCONNECTED() {
-    Serial.println("[App] Disconnected from IoTDataHub.");
-}
+PRINT_PIN(V0)
+PRINT_PIN(V1)
+PRINT_PIN(V2)
+PRINT_PIN(V3)
+PRINT_PIN(V4)
+PRINT_PIN(V5)
+PRINT_PIN(V6)
+PRINT_PIN(V7)
+PRINT_PIN(V8)
+PRINT_PIN(V9)
+
+IoTDATAHUB_CONNECTED()    { Serial.println("Connected!"); }
+IoTDATAHUB_DISCONNECTED() { Serial.println("Disconnected."); }
 
 void setup() {
     Serial.begin(115200);
